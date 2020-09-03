@@ -10,6 +10,7 @@ class CPU:
         self.ram = [00000000] * 256 # memory to hold 256 bytes
         self.reg = [0] * 8          # 8 all purpose registers
         self.pc = 0                 # pc counter
+        self.running = True
 
     def ram_read(self, address):
         # accept the address to read and return the value stored there
@@ -72,30 +73,31 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        # read the memory address that's stored in register PC, 
-            # and store that result in IR, the Instruction Register
-        instruction = self.ram[self.pc]
+        while self.running:
+            # read the memory address that's stored in register PC, 
+                # and store that result in IR, the Instruction Register
+            instruction = self.ram[self.pc]
 
-        # Using ram_read(), read the bytes at PC+1 and PC+2 from RAM into 
-            # variables operand_a and operand_b in case the instruction needs them.
+            # Using ram_read(), read the bytes at PC+1 and PC+2 from RAM into 
+                # variables operand_a and operand_b in case the instruction needs them.
 
-        operand_a = self.ram_read(self.pc + 1)
-        operand_b = self.ram_read(self.pc + 2)
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
 
-        # depending on the value of the opcode, perform the actions needed for the 
-            # instruction per the LS-8 spec. Maybe an if-elif cascade...?
+            # depending on the value of the opcode, perform the actions needed for the 
+                # instruction per the LS-8 spec. Maybe an if-elif cascade...?
 
-        if instruction == 0b10000010: # LDI R0,8
-            self.reg[operand_a] = operand_b
-            self.pc += 3
-        elif instruction == 0b01000111: # PRN R0
-            print(self.reg[operand_a])
-            self.pc += 2
-        elif instruction == 0b00000001: # HLT
-            self.pc += 1
-            return
-        else:
-            print(f'Unknown instruction: {instruction}')
+            if instruction == 0b10000010:      # LDI R0,8
+                self.reg[operand_a] = operand_b
+                self.pc += 3
+            elif instruction == 0b01000111:    # PRN R0
+                print(self.reg[operand_a])
+                self.pc += 2
+            elif instruction == 0b00000001:    # HLT
+                self.pc += 1
+                self.running = False
+            else:
+                print(f'Unknown instruction: {instruction}')
 
 # first_try = CPU()
 # first_try.load()
