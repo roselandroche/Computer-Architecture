@@ -12,13 +12,13 @@
 - [x] Implement the `CPU` constructor
 - [x] Add RAM functions `ram_read()` and `ram_write()`
 - [x] Implement the core of `run()`
-- [ ] Implement the `HLT` instruction handler
-- [ ] Add the `LDI` instruction
-- [ ] Add the `PRN` instruction
+- [x] Implement the `HLT` instruction handler
+- [x] Add the `LDI` instruction
+- [x] Add the `PRN` instruction
 
 ### Day 2: Add the ability to load files dynamically, get `mult.ls8` running
 
-- [ ] Un-hardcode the machine code
+- [x] Un-hardcode the machine code
 - [ ] Implement the `load()` function to load an `.ls8` file given the filename
       passed in as an argument
 - [ ] Implement a Multiply instruction (run `mult.ls8`)

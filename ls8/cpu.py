@@ -25,21 +25,43 @@ class CPU:
 
         address = 0
 
+        # check if 2 arguments are given, if not - exit with error message
+        if len(sys.argv) != 2:
+            print('To Use: python3 ls8.py examples/filename')
+            sys.exit(1)
+
+        # open a file, read in its contents line by line, and save appropriate data into RAM.
+        try:
+            with open(sys.argv[1]) as f:
+                for line in f:
+                    split_line = line.split("#")
+                    cleaned_line = split_line[0].strip()
+
+                    if cleaned_line == '':
+                        continue
+
+                    num_to_save = int(cleaned_line, 2)
+                    self.ram_write(num_to_save, address)
+                    address += 1
+        
+        except FileNotFoundError:
+            print(f'{sys.argv[1]} not found')
+
         # For now, we've just hardcoded a program:
 
-        program = [
+        # program = [
             # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+            # 0b10000010, # LDI R0,8
+            # 0b00000000,
+            # 0b00001000,
+            # 0b01000111, # PRN R0
+            # 0b00000000,
+            # 0b00000001, # HLT
+        # ]
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -98,7 +120,3 @@ class CPU:
                 self.running = False
             else:
                 print(f'Unknown instruction: {instruction}')
-
-# first_try = CPU()
-# first_try.load()
-# first_try.run()
