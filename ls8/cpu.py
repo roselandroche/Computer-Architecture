@@ -11,6 +11,7 @@ class CPU:
         self.reg = [0] * 8          # 8 all purpose registers
         self.pc = 0                 # pc counter
         self.running = True
+        self.SP = 7                 # stack pointer
 
     def ram_read(self, address):
         # accept the address to read and return the value stored there
@@ -80,6 +81,9 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
+
+        self.reg[self.SP] = 244   # set the stack pointer pointing to hex F4
+
         while self.running:
             # read the memory address that's stored in register PC, 
                 # and store that result in IR, the Instruction Register
@@ -106,5 +110,15 @@ class CPU:
             elif instruction == 0b10100010:      # MUL R0,R1
                 self.alu(instruction, operand_a, operand_b)
                 self.pc += 3
+            elif instruction == 0b01000101:       # PUSH
+                value_to_save = self.reg[operand_a]
+                self.reg[self.SP] -= 1
+                self.ram_write(value_to_save, self.reg[self.SP])
+                self.pc += 2
+            elif instruction == 0b01000110:       # POP
+                value_to_pop = self.ram_read(self.reg[self.SP])
+                self.reg[operand_a] = value_to_pop
+                self.reg[self.SP] += 1
+                self.pc += 2
             else:
                 print(f'Unknown instruction: {instruction}')
