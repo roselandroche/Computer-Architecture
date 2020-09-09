@@ -53,7 +53,7 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        elif op == 0b10100010:        # MUL R0,R1
+        elif op == 0b10100010:                          # MUL R0,R1
             product = self.reg[reg_a] * self.reg[reg_b]
             self.reg[reg_a] = product
         else:
@@ -98,27 +98,33 @@ class CPU:
             # depending on the value of the opcode, perform the actions needed for the 
                 # instruction per the LS-8 spec. Maybe an if-elif cascade...?
 
-            if instruction == 0b10000010:      # LDI R0,8
+            if instruction == 0b10000010:         # LDI R0,8
                 self.reg[operand_a] = operand_b
                 self.pc += 3
-            elif instruction == 0b01000111:    # PRN R0
+
+            elif instruction == 0b01000111:       # PRN R0
                 print(self.reg[operand_a])
                 self.pc += 2
-            elif instruction == 0b00000001:    # HLT
-                self.pc += 1
+
+            elif instruction == 0b00000001:       # HLT
                 self.running = False
-            elif instruction == 0b10100010:      # MUL R0,R1
+
+            elif instruction == 0b10100010:       # MUL R0,R1
                 self.alu(instruction, operand_a, operand_b)
                 self.pc += 3
+
             elif instruction == 0b01000101:       # PUSH
                 value_to_save = self.reg[operand_a]
                 self.reg[self.SP] -= 1
                 self.ram_write(value_to_save, self.reg[self.SP])
                 self.pc += 2
+
             elif instruction == 0b01000110:       # POP
                 value_to_pop = self.ram_read(self.reg[self.SP])
                 self.reg[operand_a] = value_to_pop
                 self.reg[self.SP] += 1
                 self.pc += 2
+                
             else:
                 print(f'Unknown instruction: {instruction}')
+                sys.exit(1)
