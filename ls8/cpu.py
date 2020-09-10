@@ -51,9 +51,9 @@ class CPU:
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
-        if op == "ADD":
+        if op == 0b10100000:                            # ADD R0, R1
             self.reg[reg_a] += self.reg[reg_b]
-        elif op == 0b10100010:                          # MUL R0,R1
+        elif op == 0b10100010:                          # MUL R0, R1
             product = self.reg[reg_a] * self.reg[reg_b]
             self.reg[reg_a] = product
         else:
@@ -113,6 +113,10 @@ class CPU:
                 self.alu(instruction, operand_a, operand_b)
                 self.pc += 3
 
+            elif instruction == 0b10100000:       # ADD R0, R1
+                self.alu(instruction, operand_a, operand_b)
+                self.pc += 3
+
             elif instruction == 0b01000101:       # PUSH
                 value_to_save = self.reg[operand_a]
                 self.reg[self.SP] -= 1
@@ -124,6 +128,23 @@ class CPU:
                 self.reg[operand_a] = value_to_pop
                 self.reg[self.SP] += 1
                 self.pc += 2
+
+            elif instruction == 0b01010000:      # CALL
+                # operand_a is register
+                given_reg = operand_a
+                # decrement stack pointer
+                # print(f'value in stack pointer = {self.reg[self.SP]}\nstack pointer = {self.SP}')
+                self.reg[self.SP] -= 1
+                # save return address to stack
+                self.ram_write(self.pc + 2, self.reg[self.SP])
+                # set the pc to the value of given register
+                self.pc = self.reg[given_reg]
+
+            elif instruction == 0b00010001:      # RET
+                # set pc to value from top of stack
+                self.pc = self.ram[self.reg[self.SP]]
+                # pop from stack/move stack pointer
+                self.reg[self.SP] += 1
                 
             else:
                 print(f'Unknown instruction: {instruction}')
