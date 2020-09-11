@@ -133,7 +133,6 @@ class CPU:
                 # operand_a is register
                 given_reg = operand_a
                 # decrement stack pointer
-                # print(f'value in stack pointer = {self.reg[self.SP]}\nstack pointer = {self.SP}')
                 self.reg[self.SP] -= 1
                 # save return address to stack
                 self.ram_write(self.pc + 2, self.reg[self.SP])
