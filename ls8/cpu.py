@@ -12,6 +12,7 @@ class CPU:
         self.pc = 0                 # pc counter
         self.running = True
         self.SP = 7                 # stack pointer
+        self.FL = 0b00000000        # flags register, 00000LGE
 
     def ram_read(self, address):
         # accept the address to read and return the value stored there
@@ -56,6 +57,13 @@ class CPU:
         elif op == 0b10100010:                          # MUL R0, R1
             product = self.reg[reg_a] * self.reg[reg_b]
             self.reg[reg_a] = product
+        elif op == 0b10100111:                          # CMP R0, R1
+            if self.reg[reg_a] == self.reg[reg_b]:
+                self.FL = 0b00000001                    # bin 1
+            if self.reg[reg_a] < self.reg[reg_b]: 
+                self.FL = 0b00000100                    # bin 1 << 2
+            if self.reg[reg_a] > self.reg[reg_b]: 
+                self.FL = 0b00000010                    # bin 1 << 1
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -79,12 +87,18 @@ class CPU:
 
         print()
 
+    def get_arg_count(self, value, comparison=0b11000000):
+        x = value & comparison
+        x = x >> 6
+        return x
+
     def run(self):
         """Run the CPU."""
 
         self.reg[self.SP] = 244   # set the stack pointer pointing to hex F4
 
         while self.running:
+            self.trace()
             # read the memory address that's stored in register PC, 
                 # and store that result in IR, the Instruction Register
             instruction = self.ram[self.pc]
@@ -144,6 +158,28 @@ class CPU:
                 self.pc = self.ram[self.reg[self.SP]]
                 # pop from stack/move stack pointer
                 self.reg[self.SP] += 1
+
+            # Add the CMP instruction and equal flag to your LS-8.
+            elif instruction == 0b10100111:                          # CMP R0, R1
+                self.alu(instruction, operand_a, operand_b)
+                self.pc += self.get_arg_count(instruction) + 1
+
+            # Add the JMP instruction
+            elif instruction == 0b01010100:                          # JMP R0
+                self.pc = self.ram[self.reg[operand_a]]
+
+            # Add the JEQ and JNE instructions
+            elif instruction == 0b01010101:                          # JEQ R0
+                if self.FL == '0b1':
+                    self.pc = self.ram[self.reg[operand_a]]
+                else:
+                    self.pc += self.get_arg_count(instruction) + 1
+
+            elif instruction == 0b01010110:                          # JNE R0
+                if self.FL != '0b1':
+                    self.pc = self.ram[self.reg[operand_a]]
+                else:
+                    self.pc += self.get_arg_count(instruction) + 1
                 
             else:
                 print(f'Unknown instruction: {instruction}')
