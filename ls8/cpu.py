@@ -98,7 +98,6 @@ class CPU:
         self.reg[self.SP] = 244   # set the stack pointer pointing to hex F4
 
         while self.running:
-            self.trace()
             # read the memory address that's stored in register PC, 
                 # and store that result in IR, the Instruction Register
             instruction = self.ram[self.pc]
@@ -114,34 +113,34 @@ class CPU:
 
             if instruction == 0b10000010:         # LDI R0,8
                 self.reg[operand_a] = operand_b
-                self.pc += 3
+                self.pc += self.get_arg_count(instruction) + 1
 
             elif instruction == 0b01000111:       # PRN R0
                 print(self.reg[operand_a])
-                self.pc += 2
+                self.pc += self.get_arg_count(instruction) + 1
 
             elif instruction == 0b00000001:       # HLT
                 self.running = False
 
             elif instruction == 0b10100010:       # MUL R0,R1
                 self.alu(instruction, operand_a, operand_b)
-                self.pc += 3
+                self.pc += self.get_arg_count(instruction) + 1
 
             elif instruction == 0b10100000:       # ADD R0, R1
                 self.alu(instruction, operand_a, operand_b)
-                self.pc += 3
+                self.pc += self.get_arg_count(instruction) + 1
 
             elif instruction == 0b01000101:       # PUSH
                 value_to_save = self.reg[operand_a]
                 self.reg[self.SP] -= 1
                 self.ram_write(value_to_save, self.reg[self.SP])
-                self.pc += 2
+                self.pc += self.get_arg_count(instruction) + 1
 
             elif instruction == 0b01000110:       # POP
                 value_to_pop = self.ram_read(self.reg[self.SP])
                 self.reg[operand_a] = value_to_pop
                 self.reg[self.SP] += 1
-                self.pc += 2
+                self.pc += self.get_arg_count(instruction) + 1
 
             elif instruction == 0b01010000:      # CALL
                 # operand_a is register
@@ -166,18 +165,18 @@ class CPU:
 
             # Add the JMP instruction
             elif instruction == 0b01010100:                          # JMP R0
-                self.pc = self.ram[self.reg[operand_a]]
+                self.pc = self.reg[operand_a]
 
             # Add the JEQ and JNE instructions
             elif instruction == 0b01010101:                          # JEQ R0
                 if self.FL == '0b1':
-                    self.pc = self.ram[self.reg[operand_a]]
+                    self.pc = self.reg[operand_a]
                 else:
                     self.pc += self.get_arg_count(instruction) + 1
 
             elif instruction == 0b01010110:                          # JNE R0
                 if self.FL != '0b1':
-                    self.pc = self.ram[self.reg[operand_a]]
+                    self.pc = self.reg[operand_a]
                 else:
                     self.pc += self.get_arg_count(instruction) + 1
                 
