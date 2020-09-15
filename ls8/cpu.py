@@ -60,9 +60,9 @@ class CPU:
         elif op == 0b10100111:                          # CMP R0, R1
             if self.reg[reg_a] == self.reg[reg_b]:
                 self.FL = 0b00000001                    # bin 1
-            if self.reg[reg_a] < self.reg[reg_b]: 
+            elif self.reg[reg_a] < self.reg[reg_b]: 
                 self.FL = 0b00000100                    # bin 1 << 2
-            if self.reg[reg_a] > self.reg[reg_b]: 
+            elif self.reg[reg_a] > self.reg[reg_b]: 
                 self.FL = 0b00000010                    # bin 1 << 1
         else:
             raise Exception("Unsupported ALU operation")
@@ -94,12 +94,12 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-
         self.reg[self.SP] = 244   # set the stack pointer pointing to hex F4
 
         while self.running:
             # read the memory address that's stored in register PC, 
                 # and store that result in IR, the Instruction Register
+
             instruction = self.ram[self.pc]
 
             # Using ram_read(), read the bytes at PC+1 and PC+2 from RAM into 
@@ -169,13 +169,13 @@ class CPU:
 
             # Add the JEQ and JNE instructions
             elif instruction == 0b01010101:                          # JEQ R0
-                if self.FL == '0b1':
+                if self.FL == 0b1:
                     self.pc = self.reg[operand_a]
                 else:
                     self.pc += self.get_arg_count(instruction) + 1
 
             elif instruction == 0b01010110:                          # JNE R0
-                if self.FL != '0b1':
+                if self.FL != 0b1:
                     self.pc = self.reg[operand_a]
                 else:
                     self.pc += self.get_arg_count(instruction) + 1
